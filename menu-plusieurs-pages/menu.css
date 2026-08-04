@@ -1,0 +1,27 @@
+.menu{width:36px;text-decoration:none!important}
+.popup-overlay {
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.2);
+  z-index:9999;
+}
+.popup-window-menu ul{padding-left:15px;margin:0}
+.popup-window-menu li{line-height:1.5;}
+.popup-window-menu {
+  position:absolute;
+  top:45px;
+  max-width:70%;
+  max-height:70%;
+  background:rgba(0,0,0,0.8);
+  color:#ccc;
+  padding:10px;
+  border:1px solid #808080;
+  box-sizing:border-box;
+  overflow:auto;
+}
+a {
+  color:#4af;
+  text-decoration:none;
+  word-break:break-all;
+}
+a:hover{text-decoration:underline;}
