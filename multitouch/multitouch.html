@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multitouch</title>
+<link rel="stylesheet" href="popup.css">
+<link rel="stylesheet" href="color-palette.css">
+<style>canvas{border:1px solid #000;touch-action:none;}input</style>
+</head>
+<p>Essayez simultanément de <b>dessiner</b> et d'appuyer sur le <b>Bouton ou du champ à côté</b> et <b>toucher les éléments du menu.</b></p>
+
+<!-- Popup -->
+<button data-action="openHelpPopup" class="multitouchbtn">Bouton</button>
+<div id="popupHelpContent" style="display:none">
+  <details><summary>Cliquez ici pour dérouler</summary>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+    TexteTexteTexteTexteTexteTexteTexteTexteTexteTexte<br>
+  </details><br>
+  <input type="checkbox">Checkbox
+  <input type="radio">Radio
+</div>
+
+<!-- Color palette -->
+<input type="text" id="colorInput" class="ColorPickerZindex"><div class="previewColorPicker"></div>
+<div class="overlayColorPicker">
+  <div class="overlayColorPicker-cell">
+    <div class="mini-picker" id="miniPicker">
+      <div class="sv-box" id="svBox">
+        <div class="sv-cursor" id="svCursor"></div>
+      </div>
+      <div class="hue-slider" id="hueSlider">
+        <div class="hue-cursor" id="hueCursor"></div>
+      </div>
+      <div class="alpha-slider" id="alphaSlider">
+        <div class="alpha-cursor" id="alphaCursor"></div>
+      </div>
+        <div class="quick-colors">
+        <div class="qc" data-col="#000000" tabindex="0" style="background:#000000"></div>
+        <div class="qc" data-col="#ffffff" tabindex="0" style="background:#ffffff"></div>
+        <div class="qc" data-col="#ff0000" tabindex="0" style="background:#ff0000"></div>
+        <div class="qc" data-col="#ff9900" tabindex="0" style="background:#ff9900"></div>
+        <div class="qc" data-col="#ffff00" tabindex="0" style="background:#ffff00"></div>
+        <div class="qc" data-col="#00ff00" tabindex="0" style="background:#00ff00"></div>
+        <div class="qc" data-col="#00ffff" tabindex="0" style="background:#00ffff"></div>
+        <div class="qc" data-col="#0000ff" tabindex="0" style="background:#0000ff"></div>
+        <div class="qc" data-col="#ff00ff" tabindex="0" style="background:#ff00ff"></div>
+      </div>
+      <button id="closePickerBtn" data-action="closePicker">Fermer</button> <!-- data-action="closePicker" à la place de onclick="closePicker()" -->
+    </div>
+  </div>
+</div>
+
+<br><br><canvas id="canvas" width="400" height="400"></canvas> <!-- Canva de test -->
+
+<script src="popup.js"></script>
+<script src="multitouch.js"></script>
+<script src="color-palette.js"></script>
+<script>
+// Popup
+function openHelpPopup() {
+  var container = document.getElementById("popupHelpContent");
+  openPopup(container);
+}
+
+addMultiTouch(".multitouchbtn,#closePickerBtn,input,label,summary"); // Multitouch
+
+attachColorPickerTo(document.getElementById("colorInput"));
+</script>
+
+<script>
+// Canva de test
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+var lastX = 0;
+var lastY = 0;
+ctx.lineWidth = 3;
+ctx.lineCap = "round";
+ctx.strokeStyle = "#000";
+function getPos(e){
+    var rect = canvas.getBoundingClientRect();
+
+    if(e.touches && e.touches.length){
+        return {
+            x: e.touches[0].clientX - rect.left,
+            y: e.touches[0].clientY - rect.top
+        };
+    }
+
+    return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+    };
+}
+function startDraw(e){
+    drawing = true;
+    var p = getPos(e);
+    lastX = p.x;
+    lastY = p.y;
+    e.preventDefault();
+}
+function draw(e){
+    if(!drawing) return;
+    var p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX,lastY);
+    ctx.lineTo(p.x,p.y);
+    ctx.stroke();
+    lastX = p.x;
+    lastY = p.y;
+    e.preventDefault();
+}
+function stopDraw(){
+    drawing = false;
+}
+var drawing = false;
+var moved = false;
+canvas.onpointerdown = function(e){
+    drawing = true;
+    moved = false;
+    canvas.setPointerCapture(e.pointerId);
+    var p = getPos(e);
+    lastX = p.x;
+    lastY = p.y;
+};
+canvas.onpointermove = function(e){
+    if(!drawing) return;
+    moved = true;
+    var p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    lastX = p.x;
+    lastY = p.y;
+};
+canvas.onpointerup = function(e){
+    drawing = false;
+    canvas.releasePointerCapture(e.pointerId);
+    // Empêche le click fantôme
+    if(moved){
+        // On bloque le click global juste après un dessin
+        window._blockNextClick = true;
+    }
+};
+
+// Bloque le click fantôme global
+window.addEventListener("click", function(e){
+    if(window._blockNextClick){
+        e.stopPropagation();
+        e.preventDefault();
+        window._blockNextClick = false;
+    }
+}, true);
+</script>
+</body>
+</html>
+
