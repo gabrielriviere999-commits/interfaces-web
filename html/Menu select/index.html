@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta name="google-site-verification" content="RZ0cNb5DMvQPDCE9WjoktWFDSZxKwXrD2Pb5N7AprAc" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accueil</title>
+<meta name="description" content="Accueil">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="stylesheet" href="portfolio.css">
+</head>
+<body>
+<main>
+<!-- Barre de navigation -->
+<div class="navbar" style="opacity:0.8;">
+  <select class="select" aria-label="Menu du site"
+    onchange="
+      if(this.value==='__search__'){
+          window.open('search.html','_blank');
+      } else if(this.value==='__github__'){
+          window.open('https://github.com/gabrielriviere999-commits/portfolio','_blank');
+      } else if(this.value==='__arbo__'){
+          window.open('arbo.html','_blank');
+      } else if(this.value!==''){
+          location.href=this.value;
+      }
+      this.selectedIndex=0;">
+    <option value="">≡</option>
+    <option value="search.html">Rechercher</option>
+    <option value="__search__">Rechercher (nouvel onglet)</option>
+    <option value="arbo.html">Arborescence</option>
+    <option value="__arbo__">Arborescence (nouvel onglet)</option>
+    <option value="https://github.com/gabrielriviere999-commits/portfolio">Dépôt GitHub</option>
+    <option value="__github__">Dépôt GitHub (nouvel onglet)</option>
+  </select>
+  <a href="search.html" class="select q">Q</a>
+  <a><select class="select" aria-label="Basculer vers onglet du site" onchange="location.href=this.value; this.selectedIndex=0;">
+      <option value="">tab?</option>
+      <option disabled="index.html">Accueil</option>
+      <option value="bts.html">BTS</option>
+      <option value="stages.html">Stages</option>
+      <option value="astuces.html">Astuces</option>
+    </select></a>
+  <a class="tab-button tab-button-active">Accueil</a>
+  <a class="tab-button" href="bts.html">BTS</a>
+  <a class="tab-button" href="stages.html">Stages</a>
+  <a class="tab-button" href="astuces.html">Astuces</a>
+</div>
+
+<!-- Contenu -->
+<h1>Accueil</h1>
+<p></p>
+<p>Portfolio de Rivière Gabriel<p>
+<img src="logo.svg" width=200px height=200px alt="logo.svg">
+<p></p>
+<a href="accueil/cv-riviere-gabriel.html" class="a" style="background:#3a6ea5;">Ouvrir le CV</a>
+<h2>Carte du site</h2>
+<style>
+pre.tree{background:black;font-family:monospace;padding:5px;overflow-x:auto;}
+pre.tree .folder{color:#4af;}
+pre.tree .file{color:#0f0;}
+pre.tree .ascii{color:#0f0;}
+pre.tree .comment{color:#888;}
+</style>
+<pre class="tree">
+<span class="folder">Portfolio/</span>
+<span class="ascii">├──</span> <span class="folder">Accueil/</span>
+<span class="ascii">│</span>   <span class="ascii">└──</span> <span class="file">CV</span>
+<span class="ascii">├──</span> <span class="folder"><a href="bts.html">BTS/</a></span>
+<span class="ascii">│</span>   <span class="ascii">├──</span> <span class="file">Tableau de synthèse</span>
+<span class="ascii">│</span>   <span class="ascii">├──</span> <span class="file">Veille technologique</span>
+<span class="ascii">│</span>   <span class="ascii">└──</span> <span class="file">Documentations de l'infrastructure</span>
+<span class="ascii">├──</span> <span class="folder"><a href="stages.html">Stages/</a></span>
+<span class="ascii">│</span>   <span class="ascii">├──</span> <span class="file">Activités faites en stages</span>
+<span class="ascii">│</span>   <span class="ascii">└──</span> <span class="file">Documentations du stage de BTS2</span>
+<span class="ascii">└──</span> <span class="folder"><a href="astuces.html">Astuces/</a></span>
+    <span class="ascii">├──</span> <span class="file"><a href="https://paypal.me/gabrielriviere999" target="_blank" rel="noopener" class="file">Lien pour soutenir le site via PayPal</a></span>
+    <span class="ascii">├──</span> <span class="file">Documentations pour s'initier à Linux</span>
+    <span class="ascii">├──</span> <span class="file">Scripts et applications pour Linux</span>
+    <span class="ascii">├──</span> <span class="file">Applications pour Android</span>
+    <span class="ascii">└──</span> <span class="file"><a href="astuces/outils-html/outils.html" class="file">Outils HTML <span class="comment">← Outils utilisables dans le navigateur sans installation</a></span></span>
+</pre>
+<a href="arbo.html">Arborescence des dossiers et fichiers</a>
+<!-- Scripts -->
+<script src="portfolio.js"></script>
+</main>
+</body>
+</html>
