@@ -10,7 +10,7 @@
 - https://gabrielriviere999-commits.github.io/interfaces-web/color-palette/hex/color-palette.html
 - https://gabrielriviere999-commits.github.io/interfaces-web/color-palette/hex-hexa/color-palette.html
 - https://gabrielriviere999-commits.github.io/interfaces-web/color-palette/hex-rgba/color-palette.html
-- https://gabrielriviere999-commits.github.io/interfaces-web/color-palette/rgb/rgba/color-palette.html
+- https://gabrielriviere999-commits.github.io/interfaces-web/color-palette/rgb-rgba/color-palette.html
 
 |Format|Syntaxe|Compatibilité navigateurs modernes|Note de support historique|
 |----|----|----|----|
