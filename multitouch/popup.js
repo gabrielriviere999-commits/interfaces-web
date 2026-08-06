@@ -27,6 +27,12 @@ function openPopupGeneric(container, type) {
         var t = document.createElement('div');
         t.className = (type === "menu") ? "popup-content-menu" : "popup-content";
 
+        // Restaurer scroll
+        var scrollElement = (type === "menu") ? p : t; 
+        setTimeout(function () {
+            scrollElement.scrollTop = container._popupScrollTop || 0;
+        }, 0);
+
         while (container.firstChild) {
             t.appendChild(container.firstChild);
         }
@@ -84,6 +90,10 @@ function closePopup() {
     if (!d) return;
     var popupContent = d.querySelector('.popup-content,.popup-content-menu');
     d.style.opacity = "0";
+    // Sauvegarder scroll
+    var scrollElement =
+        d.querySelector(".popup-content") || d.querySelector(".popup-window-menu");
+        popupOrigin._popupScrollTop = scrollElement.scrollTop;
     // Remettre les enfants dans leur conteneur d'origine
     while (popupContent.firstChild) {
         popupOrigin.appendChild(popupContent.firstChild);
