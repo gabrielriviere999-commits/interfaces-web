@@ -9,6 +9,7 @@ function popupScrollDown(){
 var popupOrigin = null;
 function openPopupGeneric(container, type) {
     setTimeout(function(){
+		if (document.querySelector('.popup-overlay')) return;
         popupOrigin = container;
 
         var d = document.createElement('div');
