@@ -1,11 +1,3 @@
-function popupScrollUp(){
-    var t = document.querySelector('.popup-content');
-    if(t) t.scrollTop -= 50;
-}
-function popupScrollDown(){
-    var t = document.querySelector('.popup-content');
-    if(t) t.scrollTop += 50;
-}
 var popupOrigin = null;
 function openPopupGeneric(container, type) {
     setTimeout(function(){
@@ -42,18 +34,6 @@ function openPopupGeneric(container, type) {
 
         // --- boutons seulement pour popup normal ---
         if (type === "normal") {
-            var up = document.createElement('button');
-            up.textContent = 'Monter';
-            up.className = 'popup-scroll-up';
-            up.setAttribute("data-action", "popupScrollUp");
-            up.onclick = popupScrollUp;
-
-            var down = document.createElement('button');
-            down.textContent = 'Descendre';
-            down.className = 'popup-scroll-down';
-            down.setAttribute("data-action", "popupScrollDown");
-            down.onclick = popupScrollDown;
-
             var b = document.createElement('button');
             b.textContent = 'Fermer';
             b.className = "popup-close";
@@ -62,8 +42,6 @@ function openPopupGeneric(container, type) {
 
             var btns = document.createElement('div');
             btns.className = "popup-buttons";
-            btns.appendChild(up);
-            btns.appendChild(down);
             btns.appendChild(b);
 
             p.appendChild(btns);
@@ -75,7 +53,7 @@ function openPopupGeneric(container, type) {
         p.focus();
 
         if (type === "normal") {
-            addMultiTouch(".popup-close, .popup-scroll-up, .popup-scroll-down");
+            addMultiTouch(".popup-close");
         }
 
     }, 5);

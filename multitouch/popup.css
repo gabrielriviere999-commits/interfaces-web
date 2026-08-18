@@ -24,5 +24,5 @@
   right:10px;
   bottom:10px;
 }
-.popup-scroll-up,.popup-scroll-down,.popup-close{width:33.33%;}
+.popup-close{width:100%;}
 .popup-content label{font-size:12px;}
