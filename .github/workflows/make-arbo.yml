@@ -1,0 +1,31 @@
+name: Générer l'arborescence
+
+on:
+  workflow_dispatch:   # déclenchement manuel uniquement
+
+permissions:
+  contents: write      # nécessaire pour pouvoir pousser les changements
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le repo
+        uses: actions/checkout@v3
+
+      - name: Installer Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Exécuter le script Python
+        run: python3 make-arbo.py
+
+      - name: Commit du fichier arbo.html généré
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add arbo.html
+          git commit -m "Mise à jour manuelle de l’arborescence" || echo "Aucun changement"
+          git push
