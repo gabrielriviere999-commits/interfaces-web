@@ -146,7 +146,7 @@ pre.tree{{padding:5px;}}
 
 
 def main():
-    root_name = "outils/"   # Nom de la racine
+    root_name = "interfaces-web/"   # Nom de la racine
 
     tree = build_tree(".")
     tree["name"] = root_name
