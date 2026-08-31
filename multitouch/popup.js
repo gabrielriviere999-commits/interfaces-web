@@ -3,35 +3,27 @@ function openPopupGeneric(container, type) {
     setTimeout(function(){
 		if (document.querySelector('.popup-overlay')) return;
         popupOrigin = container;
-
         var d = document.createElement('div');
         d.className = "popup-overlay";
-
         d.onclick = function(e){
             if (e.target === d) closePopup();
         };
-
         // --- fenêtre ---
         var p = document.createElement('div');
         p.className = (type === "menu") ? "popup-window-menu" : "popup-window";
         p.setAttribute("tabindex", "-1");
-
         // --- contenu ---
         var t = document.createElement('div');
         t.className = (type === "menu") ? "popup-content-menu" : "popup-content";
-
         // Restaurer scroll
         var scrollElement = (type === "menu") ? p : t; 
         setTimeout(function () {
             scrollElement.scrollTop = container._popupScrollTop || 0;
         }, 0);
-
         while (container.firstChild) {
             t.appendChild(container.firstChild);
         }
-
         p.appendChild(t);
-
         // --- boutons seulement pour popup normal ---
         if (type === "normal") {
             var b = document.createElement('button');
@@ -39,23 +31,17 @@ function openPopupGeneric(container, type) {
             b.className = "popup-close";
             b.setAttribute("data-action", "closePopup");
             b.onclick = closePopup;
-
             var btns = document.createElement('div');
             btns.className = "popup-buttons";
             btns.appendChild(b);
-
             p.appendChild(btns);
         }
-
         d.appendChild(p);
         document.body.appendChild(d);
-
         p.focus();
-
         if (type === "normal") {
             addMultiTouch(".popup-close");
         }
-
     }, 5);
 }
 function openPopup(container) {

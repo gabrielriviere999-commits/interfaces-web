@@ -146,7 +146,6 @@ function updatePickerFromInput(input, previewColorPicker){
         var r = parseInt(rgbaMatch[1], 10);
         var g = parseInt(rgbaMatch[2], 10);
         var b = parseInt(rgbaMatch[3], 10);
-
         if (rgbaMatch[4] !== undefined) {
             var aFloat = parseFloat(rgbaMatch[4]);
             if (aFloat < 0) aFloat = 0;
@@ -269,13 +268,11 @@ document.onmousemove = function(e){
     if (draggingSV)  moveSV(e);
     if (draggingAlpha) moveAlpha(e);
 };
-
 window.addEventListener("mouseup", function(){
     draggingHue = false;
     draggingSV  = false;
     draggingAlpha = false;
 });
-
 /* --- Touch support --- */
 var touchMap = {}; // idDuDoigt → { type: "sv" | "hue" }
 svBox.addEventListener("touchstart", function(e){
