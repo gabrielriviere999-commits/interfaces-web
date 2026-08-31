@@ -3,35 +3,27 @@ function openPopupMenu(container) {
     setTimeout(function(){
 	if (document.querySelector('.popup-overlay')) return;
     popupOrigin = container;
-
     var d = document.createElement('div');
     d.className = "popup-overlay";
-
     d.onclick = function(e){
         if (e.target === d) closePopup();
     };
-
     var p = document.createElement('div');
     p.className = "popup-window-menu";
     p.setAttribute("tabindex", "-1");
-
     var t = document.createElement('div');
     t.className = "popup-content-menu";
-
     // Restaurer scroll
     var scrollElement = p; 
     setTimeout(function () {
         scrollElement.scrollTop = container._popupScrollTop || 0;
     }, 0);
-
     while (container.firstChild) {
         t.appendChild(container.firstChild);
     }
-
     p.appendChild(t);
     d.appendChild(p);
     document.body.appendChild(d);
-
     p.focus();
     }, 5);
 }
