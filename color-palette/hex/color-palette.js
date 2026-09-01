@@ -11,11 +11,13 @@ var sat = 100; // 0–100
 var val = 100; // 0–100
 function attachColorPickerTo(inputElement) {
     inputElement.onfocus = function(){
-        activeInput = inputElement;
-        activepreviewColorPicker = inputElement.nextElementSibling;
-        overlay.style.display = "block";
-        // optionnel : synchroniser immédiatement le picker avec la valeur de l'input
-        updatePickerFromInput(inputElement, activepreviewColorPicker);
+        setTimeout(function(){
+            activeInput = inputElement;
+            activepreviewColorPicker = inputElement.nextElementSibling;
+            overlay.style.display = "block";
+            // optionnel : synchroniser immédiatement le picker avec la valeur de l'input
+            updatePickerFromInput(inputElement, activepreviewColorPicker);
+        }, 5);
     };
     inputElement.onblur = function(){
         // ici on utilise l'input qui se floute, pas activeInput
