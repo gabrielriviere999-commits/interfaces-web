@@ -104,7 +104,9 @@ function openHelpPopup() {
 
 addMultiTouch(".multitouchbtn,#closePickerBtn,input,label,summary"); // Multitouch
 
+var colorInput = document.getElementById("colorInput");
 attachColorPickerTo(document.getElementById("colorInput"));
+updatePickerFromInput(colorInput, colorInput.nextElementSibling);
 </script>
 
 <script>
