@@ -33,13 +33,8 @@ function attachColorPickerTo(inputElement) {
         updatePickerFromInput(inputElement, preview);
     }
     preview.addEventListener("click", openPicker);
-    preview.addEventListener("touchstart", openPicker, {
+    preview.addEventListener("touchend", openPicker, {
         passive: false
-    });
-    preview.addEventListener("keydown", function(e) {
-        if (e.key === "Enter" || e.key === " ") {
-            openPicker(e);
-        }
     });
 }
 function hsvToHex(h, s, v) {
@@ -118,28 +113,22 @@ function colorNameToHex(name) {
 }
 var quickColors = document.querySelectorAll(".qc");
 for (var i = 0; i < quickColors.length; i++) {
-    (function(div){
-        // clic souris
-        div.onclick = function(){
-            var hex = div.getAttribute("data-col");
-            applyQuickColor(hex);
-        };
-        // tactile multitouch
-        div.addEventListener("touchstart", function(e){
-            var hex = div.getAttribute("data-col");
-            applyQuickColor(hex);
-            e.preventDefault();
-        });
-        // clavier (Entrée ou Espace)
-        div.addEventListener("keydown", function(e){
-            if (e.key === "Enter" || e.key === " ") {
-                var hex = div.getAttribute("data-col");
-                applyQuickColor(hex);
+    (function(btn){
+        function activateQuickColor(e) {
+            if (e) {
                 e.preventDefault();
+                e.stopPropagation();
             }
-        });
+            var hex = btn.getAttribute("data-col");
+            applyQuickColor(hex);
+        }
+        // click souris
+        btn.addEventListener("click", activateQuickColor);
+        // tactile (multitouch)
+        btn.addEventListener("touchend", activateQuickColor, { passive:false });
     })(quickColors[i]);
 }
+
 function applyQuickColor(hex){
     if (alpha255 < 255) {
         var a = alpha255.toString(16);

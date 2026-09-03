@@ -94,12 +94,16 @@
 }
 /* previewColorPicker */
 #previewColorPicker,.previewColorPicker {
-  width:20px;
-  height:20px;
+  width:22px!important;
+  height:22px!important;
   border:1px solid #444;
   display:inline-block;
   vertical-align:middle;
   margin-left:6px;
+}
+#previewColorPicker:hover,.previewColorPicker:hover,.qc:hover,#previewColorPicker:active,.previewColorPicker:active,.qc:active {
+  background:none;
+  border:1px solid #444;
 }
 .quick-colors {
   margin-top:6px;
