@@ -129,7 +129,6 @@ for (var i = 0; i < quickColors.length; i++) {
         btn.addEventListener("touchend", activateQuickColor, { passive:false });
     })(quickColors[i]);
 }
-
 function applyQuickColor(hex){
     if (alpha255 < 255) {
         var a = alpha255.toString(16);
@@ -139,12 +138,15 @@ function applyQuickColor(hex){
     if (activeInput) {
         activeInput.value = hex;
         activepreviewColorPicker.style.background = hex;
-        activeInput.dispatchEvent(new Event("change"));
     }
     updatePickerFromInput(
         { value: hex },
         { style:{ background: hex } }
     );
+    /* Synchronisation finale après la mise à jour du picker */
+    if (activeInput) {
+        activeInput.dispatchEvent(new Event("change"));
+    }
 }
 function updatePickerFromInput(input, previewColorPicker){
     var hex = input.value.trim();
