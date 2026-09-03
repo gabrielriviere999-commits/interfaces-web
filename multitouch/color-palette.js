@@ -13,17 +13,34 @@ var alphaSlider = document.getElementById("alphaSlider");
 var alphaCursor = document.getElementById("alphaCursor");
 var alpha255 = 255;
 function attachColorPickerTo(inputElement) {
-    inputElement.onfocus = function(){
+    var preview = inputElement.nextElementSibling;
+    inputElement.onfocus = function() {
         activeInput = inputElement;
-        activepreviewColorPicker = inputElement.nextElementSibling;
+        activepreviewColorPicker = preview;
+    };
+    inputElement.onblur = function() {
+        updatePickerFromInput(inputElement, preview);
+    };
+    preview.setAttribute("tabindex", "0");
+    function openPicker(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        activeInput = inputElement;
+        activepreviewColorPicker = preview;
         overlay.style.display = "block";
-        // optionnel : synchroniser immédiatement le picker avec la valeur de l'input
-        updatePickerFromInput(inputElement, activepreviewColorPicker);
-    };
-    inputElement.onblur = function(){
-        // ici on utilise l'input qui se floute, pas activeInput
-        updatePickerFromInput(inputElement, inputElement.nextElementSibling);
-    };
+        updatePickerFromInput(inputElement, preview);
+    }
+    preview.addEventListener("click", openPicker);
+    preview.addEventListener("touchstart", openPicker, {
+        passive: false
+    });
+    preview.addEventListener("keydown", function(e) {
+        if (e.key === "Enter" || e.key === " ") {
+            openPicker(e);
+        }
+    });
 }
 function hsvToHex(h, s, v) {
   s /= 100; v /= 100;
@@ -64,6 +81,8 @@ function updateColor() {
     if (activeInput) {
         activeInput.value = finalValue;
         activepreviewColorPicker.style.background = finalValue;
+        // Mise à jour temps réel
+        activeInput.dispatchEvent(new Event("input"));
     }
 }
 function updateSVBackground() {
