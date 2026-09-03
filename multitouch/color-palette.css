@@ -7,7 +7,7 @@
   height:100%;
   background:rgba(0,0,0,0.4);
   display:none;
-  z-index:9998;
+  z-index:9999;
   overflow:auto;
 }
 /* Conteneur centré */
@@ -94,8 +94,6 @@
 }
 /* previewColorPicker */
 #previewColorPicker,.previewColorPicker {
-  position:relative;
-  z-index:9999;
   width:20px;
   height:20px;
   border:1px solid #444;
@@ -103,7 +101,6 @@
   vertical-align:middle;
   margin-left:6px;
 }
-.ColorPickerZindex{position:relative;z-index:9999;}
 .quick-colors {
   margin-top:6px;
   overflow:hidden;
