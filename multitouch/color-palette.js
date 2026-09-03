@@ -31,6 +31,7 @@ function attachColorPickerTo(inputElement) {
         activepreviewColorPicker = preview;
         overlay.style.display = "block";
         updatePickerFromInput(inputElement, preview);
+        svBox.focus();
     }
     preview.addEventListener("click", openPicker);
     preview.addEventListener("touchend", openPicker, {
