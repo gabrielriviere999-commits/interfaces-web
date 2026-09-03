@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HEX-RGBA</title>
+<link rel="stylesheet" href="color-palette.css">
+</head>
+<input type="text" id="colorInput" class="ColorPickerZindex"><button class="previewColorPicker"></button>
+<div class="overlayColorPicker">
+  <div class="overlayColorPicker-cell">
+    <div class="mini-picker" id="miniPicker">
+      <div class="sv-box" id="svBox">
+        <div class="sv-cursor" id="svCursor"></div>
+      </div>
+      <div class="hue-slider" id="hueSlider">
+        <div class="hue-cursor" id="hueCursor"></div>
+      </div>
+      <div class="alpha-slider" id="alphaSlider">
+        <div class="alpha-cursor" id="alphaCursor"></div>
+      </div>
+        <div class="quick-colors">
+        <button class="qc" data-col="#000000" style="background:#000000"></button>
+        <button class="qc" data-col="#ffffff" style="background:#ffffff"></button>
+        <button class="qc" data-col="#ff0000" style="background:#ff0000"></button>
+        <button class="qc" data-col="#ff9900" style="background:#ff9900"></button>
+        <button class="qc" data-col="#ffff00" style="background:#ffff00"></button>
+        <button class="qc" data-col="#00ff00" style="background:#00ff00"></button>
+        <button class="qc" data-col="#00ffff" style="background:#00ffff"></button>
+        <button class="qc" data-col="#0000ff" style="background:#0000ff"></button>
+        <button class="qc" data-col="#ff00ff" style="background:#ff00ff"></button>
+      </div>
+      <button id="closePickerBtn" onclick="closePicker()">Fermer</button>
+    </div>
+  </div>
+</div>
+<script src="color-palette.js"></script>
+<script>
+var colorInput = document.getElementById("colorInput");
+attachColorPickerTo(document.getElementById("colorInput"));
+updatePickerFromInput(colorInput, colorInput.nextElementSibling);
+</script>
+</script>
+</body>
+</html>
+
