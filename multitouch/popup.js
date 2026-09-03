@@ -5,6 +5,14 @@ function openPopupGeneric(container, type) {
         popupOrigin = container;
         var d = document.createElement('div');
         d.className = "popup-overlay";
+        d.addEventListener("click", function(e){
+            if (window._blockNextClick && e.pointerType === "mouse") {
+                e.stopPropagation();
+                e.preventDefault();
+                window._blockNextClick = false;
+                return;
+            }
+        }, true);
         d.onclick = function(e){
             if (e.target === d) closePopup();
         };
