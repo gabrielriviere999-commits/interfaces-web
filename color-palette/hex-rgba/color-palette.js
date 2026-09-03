@@ -200,8 +200,19 @@ function updatePickerFromInput(input, previewColorPicker){
     }
     var alphaX = (alpha255 / 255) * alphaSlider.offsetWidth;
     alphaCursor.style.left = (alphaX - 1) + "px";
-    input.value = "#" + hex;
-    previewColorPicker.style.background = "#" + hex;
+    var normalizedHex = "#" + hex;
+    if (alphaFromRgba) {
+        var a = alpha255 / 255;
+        a = Math.round(a * 100) / 100;
+        input.value = "rgba(" + 
+            parseInt(hex.substring(0,2),16) + "," +
+            parseInt(hex.substring(2,4),16) + "," +
+            parseInt(hex.substring(4,6),16) + "," +
+            a + ")";
+    } else {
+        input.value = normalizedHex;
+    }
+    previewColorPicker.style.background = input.value;
     // 5. Conversion RGB → HSV
     var r = parseInt(hex.substring(0,2), 16) / 255;
     var g = parseInt(hex.substring(2,4), 16) / 255;
