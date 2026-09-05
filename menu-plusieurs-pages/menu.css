@@ -2,7 +2,7 @@
 .popup-overlay {
   position:fixed;
   top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,0.6);
+  background:rgba(0,0,0,0.4);
   z-index:9998;
 }
 .popup-window-menu ul{padding-left:15px;margin:0}
@@ -12,7 +12,7 @@
   top:45px;
   max-width:70%;
   max-height:70%;
-  background:rgba(0,0,0,0.4);
+  background:rgba(0,0,0,0.6);
   color:#ccc;
   padding:10px;
   border:1px solid #808080;
