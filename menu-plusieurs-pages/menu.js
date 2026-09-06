@@ -1,38 +1,43 @@
 var popupOrigin = null;
+var popupMouseDownInside = false;
 function openPopupMenu(container) {
     setTimeout(function(){
-	if (document.querySelector('.popup-overlay')) return;
-    popupOrigin = container;
-    var d = document.createElement('div');
-    d.className = "popup-overlay";
-    d.addEventListener("click", function(e){
-        if (window._blockNextClick && e.pointerType === "mouse") {
-            e.stopPropagation();
-            e.preventDefault();
-            window._blockNextClick = false;
-            return;
+        if (document.querySelector('.popup-overlay')) return;
+        popupOrigin = container;
+        var d = document.createElement('div');
+        d.className = "popup-overlay";
+        d.addEventListener("mousedown", function(e){
+            popupMouseDownInside = (e.target !== d);
+        }, true);
+        d.addEventListener("click", function(e){
+            if (window._blockNextClick && e.pointerType === "mouse") {
+                e.stopPropagation();
+                e.preventDefault();
+                window._blockNextClick = false;
+                return;
+            }
+            if (e.target === d && !popupMouseDownInside) {
+                closePopup();
+            }
+            popupMouseDownInside = false;
+        }, true);
+        var p = document.createElement('div');
+        p.className = "popup-window-menu";
+        p.setAttribute("tabindex", "-1");
+        var t = document.createElement('div');
+        t.className = "popup-content-menu";
+        // Restaurer scroll
+        var scrollElement = p; 
+        setTimeout(function () {
+            scrollElement.scrollTop = container._popupScrollTop || 0;
+        }, 0);
+        while (container.firstChild) {
+            t.appendChild(container.firstChild);
         }
-    }, true);
-    d.onclick = function(e){
-        if (e.target === d) closePopup();
-    };
-    var p = document.createElement('div');
-    p.className = "popup-window-menu";
-    p.setAttribute("tabindex", "-1");
-    var t = document.createElement('div');
-    t.className = "popup-content-menu";
-    // Restaurer scroll
-    var scrollElement = p; 
-    setTimeout(function () {
-        scrollElement.scrollTop = container._popupScrollTop || 0;
-    }, 0);
-    while (container.firstChild) {
-        t.appendChild(container.firstChild);
-    }
-    p.appendChild(t);
-    d.appendChild(p);
-    document.body.appendChild(d);
-    p.focus();
+        p.appendChild(t);
+        d.appendChild(p);
+        document.body.appendChild(d);
+        p.focus();
     }, 5);
 }
 function closePopup() {
