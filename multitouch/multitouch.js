@@ -52,6 +52,7 @@ function addMultiTouch(selector){
                     this._action();
                 }
             }
+            this._touchTriggered = false;
         };
         el.onclick = function(e){
             if(this._touchTriggered){
@@ -62,6 +63,7 @@ function addMultiTouch(selector){
                         return;
                     }
                 }
+                this._touchTriggered = false;
                 // tactile → ignorer le click natif
                 return false;
             }
