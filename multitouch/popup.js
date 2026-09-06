@@ -1,10 +1,14 @@
 var popupOrigin = null;
+var popupMouseDownInside = false;
 function openPopupGeneric(container, type) {
     setTimeout(function(){
-		if (document.querySelector('.popup-overlay')) return;
+        if (document.querySelector('.popup-overlay')) return;
         popupOrigin = container;
         var d = document.createElement('div');
         d.className = "popup-overlay";
+        d.addEventListener("mousedown", function(e){
+            popupMouseDownInside = (e.target !== d);
+        }, true);
         d.addEventListener("click", function(e){
             if (window._blockNextClick && e.pointerType === "mouse") {
                 e.stopPropagation();
@@ -12,10 +16,11 @@ function openPopupGeneric(container, type) {
                 window._blockNextClick = false;
                 return;
             }
+            if (e.target === d && !popupMouseDownInside) {
+                closePopup();
+            }
+            popupMouseDownInside = false;
         }, true);
-        d.onclick = function(e){
-            if (e.target === d) closePopup();
-        };
         // --- fenêtre ---
         var p = document.createElement('div');
         p.className = (type === "menu") ? "popup-window-menu" : "popup-window";
