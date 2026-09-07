@@ -52,7 +52,6 @@ function addMultiTouch(selector){
                     this._action();
                 }
             }
-            this._touchTriggered = false;
         };
         el.onclick = function(e){
             if(this._touchTriggered){
