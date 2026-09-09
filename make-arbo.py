@@ -123,6 +123,7 @@ def generate_html(tree, nb_folders, nb_files):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Arborescence</title>
+<link rel="icon" href="favicon.png" type="image/png">
 <style>
 body{{background:black;color:#0f0;font-family:monospace;}}
 pre.tree{{padding:5px;}}
