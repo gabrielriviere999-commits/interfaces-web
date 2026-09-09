@@ -363,3 +363,26 @@ document.addEventListener("keydown", function(e){
     }
     keys[e.keyCode] = true;
 });
+function simulateEscapeOnLoad() {
+    var e = document.createEvent("Event");
+    e.initEvent("keydown", true, true);
+    e.keyCode = 27;
+    e.which = 27;
+    document.dispatchEvent(e);
+}
+if (document.addEventListener) {
+    document.addEventListener("DOMContentLoaded", simulateEscapeOnLoad, false);
+    window.addEventListener("load", simulateEscapeOnLoad, false);
+} else if (document.attachEvent) {
+    document.attachEvent("onreadystatechange", function(){
+        if (document.readyState === "complete") simulateEscapeOnLoad();
+    });
+    window.attachEvent("onload", simulateEscapeOnLoad);
+} else {
+    // Dernier fallback ES3
+    var old = window.onload;
+    window.onload = function(){
+        if (typeof old === "function") old();
+        simulateEscapeOnLoad();
+    };
+}
