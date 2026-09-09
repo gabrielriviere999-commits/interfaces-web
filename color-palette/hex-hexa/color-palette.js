@@ -197,7 +197,6 @@ function updatePickerFromInput(input, previewColorPicker){
     sat = max === 0 ? 0 : (d / max) * 100;
     val = max * 100;
     updateSVBackground();
-    updateColor();
     // 6. Mise à jour curseurs Hue + SV
     hueCursor.style.left = ((hue / 360) * hueSlider.offsetWidth - 1) + "px";
     var svX = (sat / 100) * svBox.offsetWidth;
