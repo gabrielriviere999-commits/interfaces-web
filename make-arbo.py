@@ -125,12 +125,12 @@ def generate_html(tree, nb_folders, nb_files):
 <title>Arborescence</title>
 <link rel="icon" href="favicon.png" type="image/png">
 <style>
-body{{background:black;color:#0f0;font-family:monospace;}}
+body{{background:black;color:#9c0;font-family:monospace;}}
 pre.tree{{padding:5px;}}
-.folder{{color:#9c0;}}
-.file{{color:#0f0;text-decoration:none;}}
+.folder{{color:#0c0;}}
+.file{{color:#9c0;text-decoration:none;}}
 .file:hover{{text-decoration:underline;}}
-.ascii{{color:#0f0;}}
+.ascii{{color:#9c0;}}
 </style>
 </head>
 <body>
