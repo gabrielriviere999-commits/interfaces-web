@@ -131,9 +131,11 @@ for (var i = 0; i < quickColors.length; i++) {
 }
 function applyQuickColor(hex){
     if (alpha255 < 255) {
-        var a = alpha255.toString(16);
-        if (a.length < 2) a = "0" + a;
-        hex += a;
+        var r = parseInt(hex.substring(1,3),16);
+        var g = parseInt(hex.substring(3,5),16);
+        var b = parseInt(hex.substring(5,7),16);
+        var a = Math.round((alpha255 / 255) * 100) / 100;
+        hex = "rgba(" + r + "," + g + "," + b + "," + a + ")";
     }
     if (activeInput) {
         activeInput.value = hex;
@@ -143,7 +145,7 @@ function applyQuickColor(hex){
         { value: hex },
         { style:{ background: hex } }
     );
-    /* Synchronisation finale après la mise à jour du picker */
+    // Synchronisation finale après la mise à jour du picker
     if (activeInput) {
         activeInput.dispatchEvent(new Event("change"));
     }
@@ -151,7 +153,7 @@ function applyQuickColor(hex){
 function updatePickerFromInput(input, previewColorPicker){
     var hex = input.value.trim();
     var alphaFromRgba = false;
-    // --- rgba() ou rgb() ---
+    // rgba() ou rgb()
     var rgbaMatch = hex.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([0-9.]+))?\s*\)$/i);
     if (rgbaMatch) {
         var r = parseInt(rgbaMatch[1], 10);
@@ -209,6 +211,13 @@ function updatePickerFromInput(input, previewColorPicker){
             parseInt(hex.substring(2,4),16) + "," +
             parseInt(hex.substring(4,6),16) + "," +
             a + ")";
+    } else if (hex.length === 8) {
+        // rrggbbaa → convertir en rgba
+        var r8 = parseInt(hex.substring(0,2),16);
+        var g8 = parseInt(hex.substring(2,4),16);
+        var b8 = parseInt(hex.substring(4,6),16);
+        var a8 = Math.round((alpha255 / 255) * 100) / 100;
+        input.value = "rgba(" + r8 + "," + g8 + "," + b8 + "," + a8 + ")";
     } else {
         input.value = normalizedHex;
     }
@@ -234,7 +243,7 @@ function updatePickerFromInput(input, previewColorPicker){
     svCursor.style.left = (svX - 5) + "px";
     svCursor.style.top  = (svY - 5) + "px";
 }
-/* --- Hue slider --- */
+/* Hue slider */
 hueSlider.onmousedown = function(e){
   draggingHue = true;
   moveHue(e);
@@ -249,7 +258,7 @@ function moveHue(e){
   updateSVBackground();
   updateColor();
 }
-/* --- Alpha slider --- */
+/* Alpha slider */
 alphaSlider.onmousedown = function(e){
     draggingAlpha = true;
     moveAlpha(e);
@@ -263,7 +272,7 @@ function moveAlpha(e){
     alphaCursor.style.left = (x - 1) + "px";
     updateColor();
 }
-/* --- SV box --- */
+/* SV box */
 svBox.onmousedown = function(e){
   draggingSV = true;
   moveSV(e);
@@ -282,7 +291,7 @@ function moveSV(e){
   svCursor.style.top  = (y - 5) + "px";
   updateColor();
 }
-/* --- Drag global --- */
+/* Drag global */
 var draggingAlpha = false;
 document.onmousemove = function(e){
     if (draggingHue) moveHue(e);
@@ -294,7 +303,7 @@ window.addEventListener("mouseup", function(){
     draggingSV  = false;
     draggingAlpha = false;
 });
-/* --- Touch support --- */
+/* Touch support */
 var touchMap = {}; // idDuDoigt → { type: "sv" | "hue" }
 svBox.addEventListener("touchstart", function(e){
     for (var i=0; i<e.changedTouches.length; i++){
@@ -340,13 +349,13 @@ document.addEventListener("touchend", function(e){
         delete touchMap[e.changedTouches[i].identifier];
     }
 });
-/* --- Bouton fermer --- */
+/* Bouton fermer */
 function closePicker(){
   setTimeout(function(){
     overlay.style.display="none";
   }, 5);
 }
-/* --- Fermeture si clic en dehors du picker --- */
+/* Fermeture si clic en dehors du picker */
 var downOnOverlay = false;
 overlay.onmousedown = function(e){
     downOnOverlay = (e.target === overlay);
@@ -357,7 +366,7 @@ overlay.onclick = function(e){
         overlay.style.display = "none";
     }
 };
-/* --- Mouvement curseur flèches clavier --- */
+/* Mouvement curseur flèches clavier */
 var svHasFocus = false;
 svBox.setAttribute("tabindex", "0");
 svBox.onfocus = function(){
@@ -401,7 +410,7 @@ document.onkeyup = function(e){
 setInterval(function(){
     var step = 0.1;
     if (keys[17]) step = 1;
-    /* --- Mouvement SV si le carré a le focus --- */
+    // Mouvement SV si le carré a le focus
     if (svHasFocus) {
         // gauche
         if (keys[37]) {
@@ -431,7 +440,7 @@ setInterval(function(){
         svCursor.style.left = (svX - 5) + "px";
         svCursor.style.top  = (svY - 5) + "px";
     }
-    /* --- Mouvement HUE si la barre a le focus --- */
+    // Mouvement HUE si la barre a le focus
     if (hueHasFocus) {
         var stepHue = 0.3;
         if (keys[17]) stepHue = 3;
@@ -451,7 +460,7 @@ setInterval(function(){
         var hueX = (hue / 360) * hueSlider.offsetWidth;
         hueCursor.style.left = (hueX - 1) + "px";
     }
-    /* --- Mouvement ALPHA si la barre a le focus --- */
+    // Mouvement ALPHA si la barre a le focus
     if (alphaHasFocus) {
         var stepAlpha = 1;
         if (keys[17]) stepAlpha = 5;
