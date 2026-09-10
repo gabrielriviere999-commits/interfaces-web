@@ -176,9 +176,16 @@ function updatePickerFromInput(input, previewColorPicker){
         if (bh.length < 2) bh = "0" + bh;
         hex = "#" + rh + gh + bh;
     }
-    // Hex sans # (6 ou 8 caractères)
-    if (/^[0-9a-fA-F]{6,8}$/.test(hex)) {
+    // Hex court sans # : fff → #ffffff
+    if (/^[0-9a-fA-F]{3}$/.test(hex)) {
+        hex = expandShortHex(hex);
+    // Hex court avec # : #fff → #ffffff
+    } else if (/^#[0-9a-fA-F]{3}$/.test(hex)) {
+        hex = expandShortHex(hex);
+    // Hex normal sans # : ffffff → #ffffff
+    } else if (/^[0-9a-fA-F]{6,8}$/.test(hex)) {
         hex = "#" + hex;
+    // Nom de couleur : red, blue, white...
     } else if (/^[a-zA-Z]+$/.test(hex)) {
         var named = colorNameToHex(hex);
         if (named) {
@@ -186,10 +193,10 @@ function updatePickerFromInput(input, previewColorPicker){
         } else {
             return;
         }
+    // Autre valeur commençant sans #
     } else if (hex.charAt(0) !== "#") {
         hex = "#" + hex;
     }
-    hex = expandShortHex(hex);
     if (!/^#?[0-9a-fA-F]{6,8}$/.test(hex)) return;
     if (hex.charAt(0) === "#") hex = hex.substring(1);
     // 1. Restaurer alpha si AA existe (pour les formats rrggbbaa)
