@@ -204,22 +204,35 @@ function updatePickerFromInput(input, previewColorPicker){
     alphaCursor.style.left = (alphaX - 1) + "px";
     var normalizedHex = "#" + hex;
     if (alphaFromRgba) {
-        var a = alpha255 / 255;
-        a = Math.round(a * 100) / 100;
-        input.value = "rgba(" + 
-            parseInt(hex.substring(0,2),16) + "," +
-            parseInt(hex.substring(2,4),16) + "," +
-            parseInt(hex.substring(4,6),16) + "," +
-            a + ")";
-    } else if (hex.length === 8) {
-        // rrggbbaa → convertir en rgba
+        // Si alpha = 255 → rgb ou rgba(…,1) → convertir en hex
+        if (alpha255 === 255) {
+            input.value = "#" + hex.substring(0,6);
+        }
+        // Sinon → rgba transparent
+        else {
+            var a = Math.round((alpha255 / 255) * 100) / 100;
+            input.value = "rgba(" +
+                parseInt(hex.substring(0,2),16) + "," +
+                parseInt(hex.substring(2,4),16) + "," +
+                parseInt(hex.substring(4,6),16) + "," +
+                a + ")";
+        }
+    }
+    else if (hex.length === 8 && hex.substring(6,8).toLowerCase() === "ff") {
+        // Cas 2 : rrggbbaa avec aa = ff → convertir en hex opaque
+        input.value = "#" + hex.substring(0,6);
+    }
+    else if (hex.length === 8) {
+        // Cas 3 : rrggbbaa → convertir en rgba
         var r8 = parseInt(hex.substring(0,2),16);
         var g8 = parseInt(hex.substring(2,4),16);
         var b8 = parseInt(hex.substring(4,6),16);
         var a8 = Math.round((alpha255 / 255) * 100) / 100;
         input.value = "rgba(" + r8 + "," + g8 + "," + b8 + "," + a8 + ")";
-    } else {
-        input.value = normalizedHex;
+    }
+    else {
+        // Cas 4 : rrggbb → hex normal
+        input.value = "#" + hex;
     }
     previewColorPicker.style.background = input.value;
     // 5. Conversion RGB → HSV
