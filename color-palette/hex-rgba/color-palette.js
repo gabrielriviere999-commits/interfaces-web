@@ -218,7 +218,7 @@ function updatePickerFromInput(input, previewColorPicker){
                 a + ")";
         }
     }
-    else if (hex.length === 8 && hex.substring(6,8).toLowerCase() === "ff") {
+    else if (hex.length === 8 && (hex.substring(6,8).toLowerCase() === "ff" || hex.substring(6,8).toLowerCase() === "fe")) {
         // Cas 2 : rrggbbaa avec aa = ff → convertir en hex opaque
         input.value = "#" + hex.substring(0,6);
     }
