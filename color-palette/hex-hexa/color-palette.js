@@ -204,14 +204,6 @@ function updatePickerFromInput(input, previewColorPicker){
     svCursor.style.left = (svX - 5) + "px";
     svCursor.style.top  = (svY - 5) + "px";
 }
-function normalizeColor(value) {
-    value = value.replace(/^\s+|\s+$/g, "");
-    value = value.toLowerCase();
-    if (/^[0-9a-f]{6}$/.test(value)) {
-        value = "#" + value;
-    }
-    return value;
-}
 /* --- Hue slider --- */
 hueSlider.onmousedown = function(e){
   draggingHue = true;
