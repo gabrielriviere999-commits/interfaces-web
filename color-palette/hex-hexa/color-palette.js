@@ -146,25 +146,27 @@ function applyQuickColor(hex){
 }
 function updatePickerFromInput(input, previewColorPicker){
     var hex = input.value.trim();
-    // Hex sans # (6 ou 8 caractères)
-    if (/^[0-9a-fA-F]{6,8}$/.test(hex)) {
+    // Hex court sans # : fff → #ffffff
+    if (/^[0-9a-fA-F]{3}$/.test(hex)) {
+        hex = expandShortHex(hex);
+    // Hex court avec # : #fff → #ffffff
+    } else if (/^#[0-9a-fA-F]{3}$/.test(hex)) {
+        hex = expandShortHex(hex);
+    // Hex normal sans # : ffffff → #ffffff
+    } else if (/^[0-9a-fA-F]{6,8}$/.test(hex)) {
         hex = "#" + hex;
-    }
-    // Nom de couleur
-    else if (/^[a-zA-Z]+$/.test(hex)) {
+    // Nom de couleur : red, blue, white...
+    } else if (/^[a-zA-Z]+$/.test(hex)) {
         var named = colorNameToHex(hex);
         if (named) {
             hex = named;
         } else {
             return;
         }
-    }
-    // Ajouter # si nécessaire
-    else if (hex.charAt(0) !== "#") {
+    // Autre valeur commençant sans #
+    } else if (hex.charAt(0) !== "#") {
         hex = "#" + hex;
     }
-    // Hex abrégé ?
-    hex = expandShortHex(hex);
     // Hex normal ?
     if (!/^#?[0-9a-fA-F]{6,8}$/.test(hex)) return;
     // Enlever #
