@@ -138,7 +138,7 @@ pre.tree{{padding:5px;}}
 <pre class="tree">
 {build_ascii_html(tree)}</pre>
 <button id="copyarbo" style="background:#000;color:#ccc;border:none;cursor:pointer;">[Copier]</button>
-<br><textarea wrap="off" id="arbo" style="width:100%;height:200px;box-sizing:border-box;background:#000;color:#ccc;border:2px groove #808080;font-family:monospace;">
+<br><textarea wrap="off" id="arbo" style="width:100%;height:200px;box-sizing:border-box;background:#000;color:#ccc;border:2px groove #888;font-family:monospace;">
 {ascii_text}</textarea>
 <script>function copyFrom(id,btn){{var code=document.getElementById(id);var temp=document.createElement("textarea");temp.value=code.value;document.body.appendChild(temp);temp.select();try{{document.execCommand("copy");}}catch(err){{}}document.body.removeChild(temp);btn.focus();}}document.getElementById("copyarbo").onclick=function(e){{copyFrom("arbo",e.target);}};</script>
 </body>
