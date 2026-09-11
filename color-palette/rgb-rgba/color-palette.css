@@ -7,7 +7,7 @@
   height:100%;
   background:rgba(0,0,0,0.4);
   display:none;
-  z-index:9998;
+  z-index:9999;
   overflow:auto;
 }
 /* Conteneur centré */
@@ -21,7 +21,7 @@
 /* Picker */
 .mini-picker {
   padding:8px;
-  border:1px solid #808080;
+  border:1px solid #888;
   background:rgba(0,0,0,0.6);
   display:block;
   text-align:left;

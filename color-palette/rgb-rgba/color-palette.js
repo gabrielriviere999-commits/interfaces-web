@@ -60,18 +60,25 @@ function hsvToHex(h, s, v) {
 }
 function updateColor() {
     var hex = hsvToHex(hue, sat, val);
+    // Extraire RGB
     var r = parseInt(hex.substring(1,3),16);
     var g = parseInt(hex.substring(3,5),16);
     var b = parseInt(hex.substring(5,7),16);
+    var a = alpha255 / 255;
+    a = Math.round(a * 100) / 100; // 0.50, 0.33, etc.
+    finalValue = "rgba(" + r + "," + g + "," + b + "," + a + ")";
     if (alpha255 === 255) {
-        finalValue = "rgb(" + r + "," + g + "," + b + ")";
+        // opaque → hex
+        finalValue = hex;
     } else {
-        var a = Math.round((alpha255 / 255) * 100) / 100;
+        // transparent → rgba()
         finalValue = "rgba(" + r + "," + g + "," + b + "," + a + ")";
     }
     if (activeInput) {
         activeInput.value = finalValue;
         activepreviewColorPicker.style.background = finalValue;
+        // Mise à jour temps réel
+        activeInput.dispatchEvent(new Event("input"));
     }
 }
 function updateSVBackground() {
@@ -123,24 +130,22 @@ for (var i = 0; i < quickColors.length; i++) {
     })(quickColors[i]);
 }
 function applyQuickColor(hex){
-    var r = parseInt(hex.substring(1,3),16);
-    var g = parseInt(hex.substring(3,5),16);
-    var b = parseInt(hex.substring(5,7),16);
-    var value;
-    if (alpha255 === 255) {
-        value = "rgb(" + r + "," + g + "," + b + ")";
-    } else {
+    if (alpha255 < 255) {
+        var r = parseInt(hex.substring(1,3),16);
+        var g = parseInt(hex.substring(3,5),16);
+        var b = parseInt(hex.substring(5,7),16);
         var a = Math.round((alpha255 / 255) * 100) / 100;
-        value = "rgba(" + r + "," + g + "," + b + "," + a + ")";
+        hex = "rgba(" + r + "," + g + "," + b + "," + a + ")";
     }
     if (activeInput) {
-        activeInput.value = value;
-        activepreviewColorPicker.style.background = value;
+        activeInput.value = hex;
+        activepreviewColorPicker.style.background = hex;
     }
     updatePickerFromInput(
-        { value: value },
-        { style:{ background: value } }
+        { value: hex },
+        { style:{ background: hex } }
     );
+    // Synchronisation finale après la mise à jour du picker
     if (activeInput) {
         activeInput.dispatchEvent(new Event("change"));
     }
@@ -148,13 +153,12 @@ function applyQuickColor(hex){
 function updatePickerFromInput(input, previewColorPicker){
     var hex = input.value.trim();
     var alphaFromRgba = false;
-    // --- rgba() ou rgb() ---
+    // rgba() ou rgb()
     var rgbaMatch = hex.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([0-9.]+))?\s*\)$/i);
     if (rgbaMatch) {
         var r = parseInt(rgbaMatch[1], 10);
         var g = parseInt(rgbaMatch[2], 10);
         var b = parseInt(rgbaMatch[3], 10);
-
         if (rgbaMatch[4] !== undefined) {
             var aFloat = parseFloat(rgbaMatch[4]);
             if (aFloat < 0) aFloat = 0;
@@ -205,14 +209,37 @@ function updatePickerFromInput(input, previewColorPicker){
     }
     var alphaX = (alpha255 / 255) * alphaSlider.offsetWidth;
     alphaCursor.style.left = (alphaX - 1) + "px";
-    var r255 = parseInt(hex.substring(0,2),16);
-    var g255 = parseInt(hex.substring(2,4),16);
-    var b255 = parseInt(hex.substring(4,6),16);
-    if (alpha255 === 255) {
-        input.value = "rgb(" + r255 + "," + g255 + "," + b255 + ")";
-    } else {
-        var a = Math.round((alpha255 / 255) * 100) / 100;
-        input.value = "rgba(" + r255 + "," + g255 + "," + b255 + "," + a + ")";
+    var normalizedHex = "#" + hex;
+    if (alphaFromRgba) {
+        // Si alpha = 255 → rgb ou rgba(…,1) → convertir en hex
+        if (alpha255 === 255) {
+            input.value = "#" + hex.substring(0,6);
+        }
+        // Sinon → rgba transparent
+        else {
+            var a = Math.round((alpha255 / 255) * 100) / 100;
+            input.value = "rgba(" +
+                parseInt(hex.substring(0,2),16) + "," +
+                parseInt(hex.substring(2,4),16) + "," +
+                parseInt(hex.substring(4,6),16) + "," +
+                a + ")";
+        }
+    }
+    else if (hex.length === 8 && (hex.substring(6,8).toLowerCase() === "ff" || hex.substring(6,8).toLowerCase() === "fe")) {
+        // Cas 2 : rrggbbaa avec aa = ff → convertir en hex opaque
+        input.value = "#" + hex.substring(0,6);
+    }
+    else if (hex.length === 8) {
+        // Cas 3 : rrggbbaa → convertir en rgba
+        var r8 = parseInt(hex.substring(0,2),16);
+        var g8 = parseInt(hex.substring(2,4),16);
+        var b8 = parseInt(hex.substring(4,6),16);
+        var a8 = Math.round((alpha255 / 255) * 100) / 100;
+        input.value = "rgba(" + r8 + "," + g8 + "," + b8 + "," + a8 + ")";
+    }
+    else {
+        // Cas 4 : rrggbb → hex normal
+        input.value = "#" + hex;
     }
     previewColorPicker.style.background = input.value;
     // 5. Conversion RGB → HSV
@@ -236,7 +263,7 @@ function updatePickerFromInput(input, previewColorPicker){
     svCursor.style.left = (svX - 5) + "px";
     svCursor.style.top  = (svY - 5) + "px";
 }
-/* --- Hue slider --- */
+/* Hue slider */
 hueSlider.onmousedown = function(e){
   draggingHue = true;
   moveHue(e);
@@ -251,7 +278,7 @@ function moveHue(e){
   updateSVBackground();
   updateColor();
 }
-/* --- Alpha slider --- */
+/* Alpha slider */
 alphaSlider.onmousedown = function(e){
     draggingAlpha = true;
     moveAlpha(e);
@@ -265,7 +292,7 @@ function moveAlpha(e){
     alphaCursor.style.left = (x - 1) + "px";
     updateColor();
 }
-/* --- SV box --- */
+/* SV box */
 svBox.onmousedown = function(e){
   draggingSV = true;
   moveSV(e);
@@ -284,21 +311,19 @@ function moveSV(e){
   svCursor.style.top  = (y - 5) + "px";
   updateColor();
 }
-/* --- Drag global --- */
+/* Drag global */
 var draggingAlpha = false;
 document.onmousemove = function(e){
     if (draggingHue) moveHue(e);
     if (draggingSV)  moveSV(e);
     if (draggingAlpha) moveAlpha(e);
 };
-
 window.addEventListener("mouseup", function(){
     draggingHue = false;
     draggingSV  = false;
     draggingAlpha = false;
 });
-
-/* --- Touch support --- */
+/* Touch support */
 var touchMap = {}; // idDuDoigt → { type: "sv" | "hue" }
 svBox.addEventListener("touchstart", function(e){
     for (var i=0; i<e.changedTouches.length; i++){
@@ -344,13 +369,13 @@ document.addEventListener("touchend", function(e){
         delete touchMap[e.changedTouches[i].identifier];
     }
 });
-/* --- Bouton fermer --- */
+/* Bouton fermer */
 function closePicker(){
   setTimeout(function(){
     overlay.style.display="none";
   }, 5);
 }
-/* --- Fermeture si clic en dehors du picker --- */
+/* Fermeture si clic en dehors du picker */
 var downOnOverlay = false;
 overlay.onmousedown = function(e){
     downOnOverlay = (e.target === overlay);
@@ -361,7 +386,7 @@ overlay.onclick = function(e){
         overlay.style.display = "none";
     }
 };
-/* --- Mouvement curseur flèches clavier --- */
+/* Mouvement curseur flèches clavier */
 var svHasFocus = false;
 svBox.setAttribute("tabindex", "0");
 svBox.onfocus = function(){
@@ -405,7 +430,7 @@ document.onkeyup = function(e){
 setInterval(function(){
     var step = 0.1;
     if (keys[17]) step = 1;
-    /* --- Mouvement SV si le carré a le focus --- */
+    // Mouvement SV si le carré a le focus
     if (svHasFocus) {
         // gauche
         if (keys[37]) {
@@ -435,7 +460,7 @@ setInterval(function(){
         svCursor.style.left = (svX - 5) + "px";
         svCursor.style.top  = (svY - 5) + "px";
     }
-    /* --- Mouvement HUE si la barre a le focus --- */
+    // Mouvement HUE si la barre a le focus
     if (hueHasFocus) {
         var stepHue = 0.3;
         if (keys[17]) stepHue = 3;
@@ -451,10 +476,11 @@ setInterval(function(){
         }
         // mise à jour visuelle hue
         updateSVBackground();
+        updateColor();
         var hueX = (hue / 360) * hueSlider.offsetWidth;
         hueCursor.style.left = (hueX - 1) + "px";
     }
-    /* --- Mouvement ALPHA si la barre a le focus --- */
+    // Mouvement ALPHA si la barre a le focus
     if (alphaHasFocus) {
         var stepAlpha = 1;
         if (keys[17]) stepAlpha = 5;
