@@ -8,9 +8,13 @@ function addMultiTouch(selector){
         }
         el.onpointerdown = function(e){
             this._touchTriggered = (e.pointerType === "touch");
+            if(this._touchTriggered){ // Class active pour effet enfoncé
+                this.classList.add("active");
+            }
         };
         el.onpointerup = function(e){
             if(this._touchTriggered){
+				this.classList.remove("active"); // Class active pour effet enfoncé
                 var tag = this.tagName.toLowerCase();
                 // Cas spécial : summary → toggle manuel
                 if(tag === "summary"){
