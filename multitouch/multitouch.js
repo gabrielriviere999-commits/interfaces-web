@@ -23,7 +23,7 @@ function addMultiTouch(selector){
                     return;
                 }
                 // Cas spécial : input
-                if(tag === "input"){
+                if(tag === "input" || tag === "textarea"){
                     var type = (this.type || "").toLowerCase();
                     // Checkbox
                     if(type === "checkbox"){
