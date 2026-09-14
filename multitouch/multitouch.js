@@ -21,30 +21,15 @@ function addMultiTouch(selector){
                 // Cas spécial : input
                 if(tag === "input" || tag === "textarea"){
                     var type = (this.type || "").toLowerCase();
-                    // Checkbox
-                    if(type === "checkbox"){
-                        this.checked = !this.checked;
+                    // Checkbox / radio → OK
+                    if(type === "checkbox" || type === "radio"){
+                        this.checked = (type === "checkbox" ? !this.checked : true);
                         this.dispatchEvent(new Event("change", {bubbles:true}));
-                        if(this._action){
-                            this._action();
-                        }
-                        return;
-                    }
-                    // Radio
-                    if(type === "radio"){
-                        this.checked = true;
-                        this.dispatchEvent(new Event("change", {bubbles:true}));
-                        if(this._action){
-                            this._action();
-                        }
+                        if(this._action) this._action();
                         return;
                     }
                     // Autres input (text, number, etc.)
-                    if(document.activeElement===this){this.blur();this.focus();}else{this.focus();}
-                    this.focus();
-                    if(this._action){
-                        this._action();
-                    }
+                    if(document.activeElement !== this){this.focus();}
                     return;
                 }
                 // Cas normal → action tactile
@@ -73,3 +58,19 @@ function addMultiTouch(selector){
         };
     }
 }
+document.addEventListener("pointerdown", function(e){
+    // Seulement tactile
+    if (e.pointerType !== "touch") return;
+    var tag = e.target.tagName.toLowerCase();
+    // Ne pas blur si on touche un input/textarea
+    if (tag === "input" || tag === "textarea") return;
+    // Ne pas blur si on touche un checkbox/radio
+    if (tag === "input") {
+        var type = (e.target.type || "").toLowerCase();
+        if (type === "checkbox" || type === "radio") return;
+    }
+    // Blur si un input/textarea est focus
+    if (document.activeElement && (document.activeElement.tagName.toLowerCase() === "input" || document.activeElement.tagName.toLowerCase() === "textarea")) {
+        document.activeElement.blur();
+    }
+}, true);
