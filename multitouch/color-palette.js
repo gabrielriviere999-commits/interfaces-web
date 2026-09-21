@@ -386,6 +386,11 @@ overlay.onclick = function(e){
         overlay.style.display = "none";
     }
 };
+overlay.addEventListener("pointerdown", function(e){
+    if (e.pointerType === "touch" && e.target === overlay) {
+	    setTimeout(function(){closePicker();},100);
+	}
+}, true);
 /* Mouvement curseur flèches clavier */
 var svHasFocus = false;
 svBox.setAttribute("tabindex", "0");
