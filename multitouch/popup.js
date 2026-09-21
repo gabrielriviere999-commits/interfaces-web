@@ -6,9 +6,9 @@ function openPopupGeneric(container, type) {
         popupOrigin = container;
         var d = document.createElement('div');
         d.className = "popup-overlay";
-        d.addEventListener("pointerdown", function(e){
+        d.addEventListener("pointerup", function(e){
             if (e.pointerType === "touch" && e.target === d) {
-			    setTimeout(function(){closePopup();},100);
+			    closePopup();
 			}
         }, true);
         d.addEventListener("mousedown", function(e){

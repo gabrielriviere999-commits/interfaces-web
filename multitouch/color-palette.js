@@ -386,9 +386,9 @@ overlay.onclick = function(e){
         overlay.style.display = "none";
     }
 };
-overlay.addEventListener("pointerdown", function(e){
+overlay.addEventListener("pointerup", function(e){
     if (e.pointerType === "touch" && e.target === overlay) {
-	    setTimeout(function(){closePicker();},100);
+	    closePicker();
 	}
 }, true);
 /* Mouvement curseur flèches clavier */
