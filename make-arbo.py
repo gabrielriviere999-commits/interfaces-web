@@ -9,8 +9,18 @@ EXCLUDE_DIRS = { ".git", ".github"}
 
 EXCLUDE_FILES = {".gitignore", ".gitattributes", "arbo.html"}
 
+class FakeEntry:
+    """Simule un objet DirEntry pour assurer la compatibilité avec le reste du script."""
+    def __init__(self, name, base_path):
+        self.name = name
+        self.path = os.path.join(base_path, name)
+    def is_dir(self):
+        return os.path.isdir(self.path)
+    def is_file(self):
+        return os.path.isfile(self.path)
+
 def build_tree(path):
-    """Construit une structure arborescente."""
+    """Construit une structure arborescente (Compatible Python 3.4 / Windows XP)."""
     tree = {
         "name": os.path.basename(path) if path != "." else ".",
         "path": path,
@@ -18,24 +28,32 @@ def build_tree(path):
         "files": []
     }
 
-    with os.scandir(path) as it:
-        for entry in sorted(it, key=lambda e: (not e.is_dir(), e.name.lower())):
+    # os.scandir n'existe pas en Python 3.4, on recrée la logique avec os.listdir
+    try:
+        filenames = os.listdir(path)
+    except OSError:
+        return tree
 
-            # exclusions GitHub Pages
-            if entry.name in EXCLUDE_DIRS and entry.is_dir():
-                continue
-            if entry.name in EXCLUDE_FILES and entry.is_file():
-                continue
-            # if entry.name.startswith("."):
-                # continue
+    # On crée une liste d'objets simulés
+    entries = [FakeEntry(name, path) for name in filenames]
+    
+    # Tri équivalent à la fonction d'origine
+    entries.sort(key=lambda e: (not e.is_dir(), e.name.lower()))
 
-            if entry.is_dir():
-                tree["folders"].append(build_tree(entry.path))
-            else:
-                tree["files"].append({
-                    "name": entry.name,
-                    "path": entry.path
-                })
+    for entry in entries:
+        # exclusions GitHub Pages
+        if entry.name in EXCLUDE_DIRS and entry.is_dir():
+            continue
+        if entry.name in EXCLUDE_FILES and entry.is_file():
+            continue
+
+        if entry.is_dir():
+            tree["folders"].append(build_tree(entry.path))
+        else:
+            tree["files"].append({
+                "name": entry.name,
+                "path": entry.path
+            })
 
     return tree
 
@@ -46,7 +64,7 @@ def build_ascii_html(node, prefix="", is_root=True):
 
     # Racine
     if is_root:
-        out += f'<span class="folder">{html.escape(node["name"])}</span>\n'
+        out += '<span class="folder">{}</span>\n'.format(html.escape(node["name"]))
 
     entries = node["folders"] + node["files"]
     total = len(entries)
@@ -57,12 +75,12 @@ def build_ascii_html(node, prefix="", is_root=True):
         new_prefix = prefix + ("    " if last else "│   ")
 
         ascii_part = html.escape(prefix + branch)
-        ascii_html = f'<span class="ascii">{ascii_part}</span>'
+        ascii_html = '<span class="ascii">{}</span>'.format(ascii_part)
 
         if "folders" in entry:
             out += (
                 ascii_html +
-                f'<span class="folder">{html.escape(entry["name"])}/</span>\n'
+                '<span class="folder">{}/</span>\n'.format(html.escape(entry["name"]))
             )
             out += build_ascii_html(entry, new_prefix, False)
 
@@ -71,7 +89,7 @@ def build_ascii_html(node, prefix="", is_root=True):
             name = html.escape(entry["name"])
             out += (
                 ascii_html +
-                f'<a class="file" href="{rel_path}">{name}</a><a class="file" href="{rel_path}" download> [↓] </a>\n'
+                '<a class="file" href="{0}">{1}</a><a class="file" href="{0}" download> [↓] </a>\n'.format(rel_path, name)
             )
 
     return out
@@ -117,7 +135,7 @@ def count_items(tree):
 def generate_html(tree, nb_folders, nb_files):
     ascii_text = build_ascii_text(tree)
 
-    return f"""<!DOCTYPE html>
+    return """<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
@@ -125,26 +143,26 @@ def generate_html(tree, nb_folders, nb_files):
 <title>Arborescence</title>
 <link rel="icon" href="favicon.png" type="image/png">
 <style>
-body{{background:black;color:#9c0;font-family:monospace;}}
+body{{background:black;color:#f44;font-family:monospace;}}
 pre.tree{{padding:5px;}}
-.folder{{color:#0c0;}}
-.file{{color:#9c0;text-decoration:none;}}
+.folder{{color:#f00;}}
+.file{{color:#f44;text-decoration:none;}}
 .file:hover{{text-decoration:underline;}}
-.ascii{{color:#9c0;}}
+.ascii{{color:#f44;}}
 </style>
 </head>
 <body>
-<p>Dossiers : {nb_folders}, Fichiers : {nb_files}</p>
+<p>Dossiers : {0}, Fichiers : {1}</p>
 <pre class="tree">
-{build_ascii_html(tree)}</pre>
+{2}</pre>
 <button id="copyarbo" style="background:#000;color:#ccc;border:none;cursor:pointer;">[Copier]</button>
 <br><textarea wrap="off" id="arbo" style="width:100%;height:200px;box-sizing:border-box;background:#000;color:#ccc;border:2px groove #888;font-family:monospace;">
-{ascii_text}</textarea>
+{3}</textarea>
 <script>function copyFrom(id,btn){{var code=document.getElementById(id);var temp=document.createElement("textarea");temp.value=code.value;document.body.appendChild(temp);temp.select();try{{document.execCommand("copy");}}catch(err){{}}document.body.removeChild(temp);btn.focus();}}document.getElementById("copyarbo").onclick=function(e){{copyFrom("arbo",e.target);}};</script>
 </body>
 </html>
-"""
-# Couleurs par défaut : body,.file,.ascii:#0f0; .folder:#4af;
+""".format(nb_folders, nb_files, build_ascii_html(tree), ascii_text)
+
 
 def main():
     root_name = "interfaces-web/"   # Nom de la racine
