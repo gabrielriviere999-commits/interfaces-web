@@ -160,6 +160,7 @@
       b.type = "button";
       b.appendChild(document.createTextNode(texte));
       b.title = titre;
+      b.style.fontFamily = "monospace"
       return b;
     }
 
