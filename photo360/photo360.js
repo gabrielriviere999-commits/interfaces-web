@@ -1,53 +1,4 @@
-/* photo360.js — Viewer 360° minimal en ES5 PUR, sans custom elements,
- * sans Shadow DOM, sans syntaxe class. Cible : navigateurs anciens
- * (~2010+, IE9/10/11, NetFront/3DS en théorie).
- *
- * Utilisation :
- *   <div class="photo360" data-src="photo360.jpg" style="width:100%;height:420px;"></div>
- *   <script src="photo360.js"></script>
- *
- * Le viewer s'installe automatiquement dans chaque .photo360 (ou [data-photo360]).
- * API sur chaque élément :
- *   var v = document.querySelector(".photo360").photo360;
- *   v.charger("autre.jpg");   // changer l'image
- *   v.detruire();             // tout démonter proprement
- * Création dynamique : window.creerPhoto360(monDiv);
- *
- * Interactions :
- *   - souris : glisser pour tourner (avec inertie), molette = zoom
- *   - tactile : 1 doigt tourner, 2 doigts zoomer
- *   - clavier : flèches tourner, Ctrl + / Ctrl - zoomer (cliquer d'abord dessus)
- *   - boutons : - / + en bas à droite, flèches en bas à gauche (maintenir)
- *
- * ROBUSTESSE VIEUX MOTEURS :
- *   - les messages d'état (chargement, erreurs) sont affichés en DOM,
- *     pas dans le canvas : visibles même si le texte canvas échoue ;
- *   - le rendu est sous try/catch : une exception n'arrête jamais la boucle ;
- *   - si les APIs pixel (createImageData/getImageData/putImageData)
- *     manquent ou échouent, repli automatique en "panoramique plat"
- *     (défilement horizontal de l'image via drawImage uniquement).
- *   - v2 : plus AUCUNE syntaxe post-ES3 dans le fichier (le getter
- *     d'objet de détection "passive" faisait échouer l'ANALYSE du
- *     script ENTIER sur les moteurs ES3 comme NetFront : rectangle
- *     noir sans aucun message) ;
- *   - v2 : message "démarrage..." affiché dès le début de la
- *     construction, erreurs non capturées montrées via window.onerror,
- *     sélection des éléments avec replis si querySelectorAll échoue.
- *   - v3 : plus de "use strict" ni d'affectation directe de propriétés
- *     IDL risquées ("type", "tabIndex", "title", styles inline) : tout
- *     passe par setAttribute(), qui ne peut pas lever "readonly
- *     property". Chaque étape de la construction est nommée pour le
- *     diagnostic, et le conteneur est marqué par un attribut au lieu
- *     d'un expando.
- */
 (function() {
-  /* "use strict" volontairement ABSENT (v3) : sur les moteurs à mode
-   * strict (JavaScriptCore / NetFront NX), affecter une propriété IDL
-   * readonly lève "Attempted to assign to readonly property" et fait
-   * planter toute la construction. Sans mode strict, une telle
-   * affectation échoue en silence ; on l'évite de toute façon en
-   * passant par setAttribute()/poser() ci-dessous. */
-
   /* RÉGLAGES */
   var FOV_MIN = 5;
   var FOV_MAX = 100;
@@ -60,16 +11,6 @@
   var TEXTURE_MAX_LARGEUR = 0;   /* texture réduite pour la mémoire (0 = taille d'origine) */
   var ERREURS_MAX_AVANT_REPLI = 3;
   var ERREURS_MAX_AVANT_ARRET = 10;
-
-  /* Détection des options d'addEventListener (navigateurs modernes),
-   * pour déclarer explicitement "passive:false" quand c'est compris.
-   * ATTENTION v2 : pas de getter dans un littéral d'objet ici
-   * (get passive() {...}) ! Cette syntaxe ES5 fait échouer l'ANALYSE
-   * du script ENTIER sur les moteurs ES3 (NetFront/3DS...) : rectangle
-   * noir sans aucun message. On passe donc par Object.defineProperty
-   * appelé à l'EXÉCUTION, dans un try/catch : si l'API manque,
-   * l'exception est capturée, optionsPassives reste false et l'on
-   * repasse un simple booléen "capture" à addEventListener. */
   var optionsPassives = false;
   try {
     var optionsTest = {};
@@ -87,10 +28,6 @@
     }
     return false;
   }
-
-  /* Filet global v2 : une erreur non capturée ne doit jamais être
-   * silencieuse (c'est la cause des "rectangle noir muet").
-   * On l'affiche une seule fois, dans une alerte lisible. */
   var erreurGlobaleAffichee = false;
   window.onerror = function(msg, source, ligne) {
     if (erreurGlobaleAffichee) {
@@ -102,13 +39,7 @@
     } catch (e) {}
     return true;
   };
-
-  /* Étape de construction en cours (diagnostic) : si la création
-   * d'un viewer échoue, le message d'erreur indique PRÉCISÉMENT où. */
   var etapePhoto360 = "";
-
-  /* Affectation blindée : certaines propriétés IDL des vieux moteurs
-   * sont readonly et lèvent une erreur à l'affectation. On isole. */
   function poser(objet, nom, valeur) {
     try {
       objet[nom] = valeur;
@@ -117,7 +48,6 @@
       return false;
     }
   }
-
   /* Repli si les TypedArrays manquent (ES5 strict ne les garantit pas). */
   function creerTableau(n) {
     if (typeof Float32Array === "function") {
@@ -125,7 +55,6 @@
     }
     return new Array(n);
   }
-
   /* requestAnimationFrame avec repli setTimeout. */
   var requestFrame =
     window.requestAnimationFrame ||
@@ -143,14 +72,10 @@
     window.mozCancelAnimationFrame ||
     window.msCancelAnimationFrame ||
     window.clearTimeout;
-
-  /* FABRIQUE : un viewer complet par élément container.
-   * Tout l'état vit dans cette closure (aucun "this"). */
   function creerPhoto360(container) {
     if (!container || container.getAttribute("data-photo360-installe")) {
       return container ? container.photo360 : null;
     }
-
     /* ÉTAT */
     var yaw = 0;
     var pitch = 0;
@@ -175,7 +100,6 @@
     var dernierTemps = 0;
     var boucleId = 0;
     var erreursRendu = 0;
-
     /* BUFFERS */
     var buffer = document.createElement("canvas");
     var bufferCtx = buffer.getContext("2d");
@@ -187,42 +111,24 @@
     var rayY = null;
     var rayZ = null;
     var dernierFovRendu = -1;
-
     /* TEXTURE */
     var textureCanvas = null;
     var textureCtx = null;
     var textureImage = null;
     var textureData = null;
-
-    /* ---- DOM ---- */
+    /* --- DOM --- */
     etapePhoto360 = "styles du conteneur";
-    /* setAttribute("style") plutôt que element.style.* : un appel de
-     * méthode ne peut pas lever "readonly property". On préserve le
-     * style inline déjà présent (width/height de l'utilisateur). */
     var styleBase = container.getAttribute("style") || "";
     if (styleBase && styleBase.charAt(styleBase.length - 1) !== ";") {
       styleBase += ";";
     }
-    container.setAttribute(
-      "style",
-      styleBase + "position:relative;overflow:hidden;background:#111;"
-    );
+    container.setAttribute("style", styleBase + "position:relative;overflow:hidden;background:#111;");
     if (!container.getAttribute("tabindex")) {
       container.setAttribute("tabindex", "0");
     }
-
-    /* Message d'état créé AVANT tout le reste : même si la construction
-     * du viewer échoue en cours de route, un texte reste visible
-     * (jamais de rectangle noir muet). Le marqueur "v3" confirme qu'on
-     * exécute bien la nouvelle version du fichier (cache navigateur). */
     etapePhoto360 = "message d'état";
     var divMessage = document.createElement("div");
-    divMessage.setAttribute(
-      "style",
-      "position:absolute;top:0;left:0;right:0;padding:6px;" +
-        "color:#cfd8e3;font:12px sans-serif;text-align:center;" +
-        "pointer-events:none;z-index:2;"
-    );
+    divMessage.setAttribute("style", "position:absolute;top:0;left:0;right:0;padding:6px;color:#cfd8e3;font:12px sans-serif;text-align:center;pointer-events:none;z-index:2;");
     container.appendChild(divMessage);
     function afficherMessageDom(texte) {
       divMessage.innerHTML = "";
@@ -231,14 +137,9 @@
       }
     }
     afficherMessageDom("photo360.js : démarrage...");
-
     etapePhoto360 = "canvas";
     var canvas = document.createElement("canvas");
-    canvas.setAttribute(
-      "style",
-      "position:absolute;top:0;left:0;width:100%;height:100%;" +
-        "display:block;cursor:grab;"
-    );
+    canvas.setAttribute("style", "position:absolute;top:0;left:0;width:100%;height:100%;display:block;cursor:grab;");
     container.appendChild(canvas);
     var ctx = null;
     try {
@@ -250,12 +151,7 @@
       return null;
     }
     poser(ctx, "imageSmoothingEnabled", true);
-
-    /* ---- DÉTECTION DES APIS PIXEL ----
-     * Sur certains vieux moteurs (NetFront/3DS), createImageData,
-     * getImageData ou putImageData manquent ou échouent silencieusement.
-     * Sans elles, le rendu 360° pixel par pixel est impossible :
-     * on basculera en mode panoramique plat (drawImage uniquement). */
+    /* --- DÉTECTION DES APIS PIXEL --- */
     etapePhoto360 = "détection des APIs pixel";
     var modePixels = false;
     try {
@@ -278,21 +174,16 @@
     } catch (e) {
       modePixels = false;
     }
-
-    /* ---- BOUTONS (styles en ligne : aucune dépendance CSS externe) ---- */
+    /* --- BOUTONS (styles en ligne : aucune dépendance CSS externe) --- */
     etapePhoto360 = "boutons";
     function creerBouton(texte, titre) {
       var b = document.createElement("button");
-      /* setAttribute partout : sur certains vieux WebKit, "type" et
-       * "title" sont des propriétés IDL readonly — c'est exactement
-       * ce qui levait "Attempted to assign to readonly property". */
       b.setAttribute("type", "button");
       b.appendChild(document.createTextNode(texte));
       b.setAttribute("title", titre);
-      b.setAttribute("style", "font-family:monospace;");
+      b.setAttribute("style", "font-family:monospace;font-size:24px;width:32px;height:32px;line-height:16px;");
       return b;
     }
-
     var groupeZoom = document.createElement("div");
     groupeZoom.setAttribute("style", "position:absolute;bottom:8px;right:8px;");
     var btnMoins = creerBouton("-", "Zoom arrière");
@@ -300,12 +191,8 @@
     groupeZoom.appendChild(btnMoins);
     groupeZoom.appendChild(btnPlus);
     container.appendChild(groupeZoom);
-
     var groupeFleches = document.createElement("div");
-    groupeFleches.setAttribute(
-      "style",
-      "position:absolute;bottom:8px;left:8px;text-align:center;"
-    );
+    groupeFleches.setAttribute("style", "position:absolute;bottom:8px;left:8px;text-align:center;");
     var btnHaut = creerBouton("↑", "Haut");
     var btnGauche = creerBouton("←", "Gauche");
     var btnBas = creerBouton("↓", "Bas");
@@ -319,14 +206,12 @@
     groupeFleches.appendChild(ligneHaut);
     groupeFleches.appendChild(ligneBas);
     container.appendChild(groupeFleches);
-
-    /* ---- FONCTIONS ---- */
+    /* --- FONCTIONS --- */
     function bornerPitch(p) {
       if (p < -1.55) return -1.55;
       if (p > 1.55) return 1.55;
       return p;
     }
-
     function activerInteractionTemporaire() {
       interactionTemporaire = true;
       if (timerInteraction !== null) {
@@ -339,17 +224,14 @@
       }, DUREE_INTERACTION);
       sale = true;
     }
-
     function interactionActive() {
       return saisie || vitesseX !== 0 || vitesseY !== 0 || interactionTemporaire;
     }
-
     function changerFov(delta) {
       fov = Math.max(FOV_MIN, Math.min(FOV_MAX, fov + delta));
       activerInteractionTemporaire();
       sale = true;
     }
-
     function commencer(x, y) {
       saisie = true;
       dernierX = x;
@@ -359,7 +241,6 @@
       canvas.style.cursor = "grabbing";
       sale = true;
     }
-
     function deplacer(x, y) {
       var dx = x - dernierX;
       var dy = y - dernierY;
@@ -372,20 +253,17 @@
       vitesseY = -dy * k;
       sale = true;
     }
-
     function terminer() {
       saisie = false;
       canvas.style.cursor = "grab";
       sale = true;
     }
-
     function distanceTouches(t) {
       var dx = t[0].clientX - t[1].clientX;
       var dy = t[0].clientY - t[1].clientY;
       return Math.sqrt(dx * dx + dy * dy);
     }
-
-    /* ---- LISTENERS (tous retirables via detruire) ---- */
+    /* --- LISTENERS (tous retirables via detruire) --- */
     function surSourisCommence(e) {
       e.preventDefault();
       /* Le preventDefault annule le focus du clic : on le redonne. */
@@ -507,7 +385,6 @@
       redimensionner();
       sale = true;
     }
-
     etapePhoto360 = "écouteurs";
     canvas.addEventListener("mousedown", surSourisCommence, false);
     window.addEventListener("mousemove", surSourisBouge, false);
@@ -533,8 +410,7 @@
     window.addEventListener("touchend", surRelachementFleches, false);
     window.addEventListener("touchcancel", surRelachementFleches, false);
     window.addEventListener("resize", surRedimensionnement, false);
-
-    /* ---- CHARGEMENT DE L'IMAGE ---- */
+    /* --- CHARGEMENT DE L'IMAGE --- */
     function charger(src) {
       etapePhoto360 = "chargement";
       imageSource = null;
@@ -574,15 +450,12 @@
       };
       img.src = src;
     }
-
-    /* ---- REDIMENSIONNEMENT ---- */
+    /* --- REDIMENSIONNEMENT --- */
     function redimensionner() {
       var dpr = window.devicePixelRatio || 1;
       if (dpr > DPR_MAX) {
         dpr = DPR_MAX;
       }
-      /* Sur certains vieux moteurs, canvas.clientWidth renvoie 0 :
-       * repli sur le container. */
       var cw = canvas.clientWidth || container.clientWidth || 0;
       var ch = canvas.clientHeight || container.clientHeight || 0;
       var w = Math.max(1, Math.round(cw * dpr));
@@ -593,8 +466,7 @@
         sale = true;
       }
     }
-
-    /* ---- BOUCLE ---- */
+    /* --- BOUCLE --- */
     function boucle(ts) {
       var dt = dernierTemps ? (ts - dernierTemps) / 1000 : 0;
       dernierTemps = ts;
@@ -659,8 +531,7 @@
       }
       boucleId = requestFrame(boucle);
     }
-
-    /* ---- RENDU 360° ---- */
+    /* --- RENDU 360° --- */
     function obtenirTailleBuffer() {
       var w = Math.max(1, canvas.width);
       var h = Math.max(1, canvas.height);
@@ -689,7 +560,6 @@
         h: bh
       };
     }
-
     function preparerRayons(w, h, focal) {
       if (rayX && bufferW === w && bufferH === h && dernierFovRendu === fov) {
         return;
@@ -721,7 +591,6 @@
       bufferH = h;
       dernierFovRendu = fov;
     }
-
     function preparerBuffer(w, h) {
       if (buffer.width !== w || buffer.height !== h) {
         buffer.width = w;
@@ -736,7 +605,6 @@
         bufferData = bufferImageData.data;
       }
     }
-
     function preparerTexture(img) {
       var iw = img.naturalWidth || img.width;
       var ih = img.naturalHeight || img.height;
@@ -767,7 +635,6 @@
         }
       }
     }
-
     function dessinerPhoto360() {
       var taille = obtenirTailleBuffer();
       var w = taille.w;
@@ -825,8 +692,7 @@
       poser(ctx, "imageSmoothingEnabled", true);
       ctx.drawImage(buffer, 0, 0, canvas.width, canvas.height);
     }
-
-    /* ---- MODE DÉGRADÉ : PANORAMIQUE PLAT ----
+    /* --- MODE DÉGRADÉ : PANORAMIQUE PLAT ---
      * Aucune API pixel requise : uniquement drawImage. Le drag et les
      * flèches gauche/droite font défiler l'image horizontalement en
      * boucle (le yaw pilote le défilement). Pas de pitch ni de zoom. */
@@ -853,14 +719,12 @@
         x += destW;
       }
     }
-
     function dessinerMessage() {
       ctx.fillStyle = "#111";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       afficherMessageDom(message);
     }
-
-    /* ---- DÉMONTAGE ---- */
+    /* --- DÉMONTAGE --- */
     function detruire() {
       if (boucleId !== 0) {
         cancelFrame(boucleId);
@@ -899,18 +763,15 @@
         container.removeAttribute("data-photo360-installe");
       } catch (e2) {}
     }
-
-    /* ---- API PUBLIQUE ---- */
+    /* --- API PUBLIQUE --- */
     var api = {
       charger: charger,
       detruire: detruire
     };
-    /* Marqueur d'installation par attribut : un expando (propriété
-     * ajoutée directement à l'élément) peut être refusé par le moteur. */
+    /* Marqueur d'installation par attribut : un expando (propriété ajoutée directement à l'élément) peut être refusé par le moteur. */
     container.setAttribute("data-photo360-installe", "1");
     poser(container, "photo360", api);
-
-    /* ---- DÉMARRAGE ---- */
+    /* --- DÉMARRAGE --- */
     etapePhoto360 = "démarrage";
     if (!modePixels) {
       afficherMessageDom("Panoramique plat (APIs pixel absentes).");
@@ -925,11 +786,6 @@
     }
     return api;
   }
-
-  /* INSTALLATION AUTOMATIQUE — v2 : chaque étape est protégée. Sur les
-   * vieux moteurs, un sélecteur d'attribut non compris par
-   * querySelectorAll, ou un DOMContentLoaded qui ne se déclenche pas,
-   * ne doit pas laisser un rectangle noir muet. */
   function installer() {
     var liste = [];
     var nombre = 0;
@@ -972,7 +828,6 @@
       }
     }
   }
-
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", installer, false);
     /* Filet de sécurité si DOMContentLoaded ne se déclenche jamais. */
@@ -980,7 +835,6 @@
   } else {
     installer();
   }
-
   /* API globale pour la création dynamique. */
   try {
     window.creerPhoto360 = creerPhoto360;
